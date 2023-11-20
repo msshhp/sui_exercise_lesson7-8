@@ -25,6 +25,19 @@ module game_hero::sea_hero {
     const EINVALID_TOKEN_SUPPLY: u64 = 1;
     const EINVALID_MONSTER_SUPPLY: u64 = 2;
 
+    public fun public_init_for_test(ctx: &mut TxContext) {
+        transfer::transfer(
+            SeaHeroAdmin {
+                id: object::new(ctx),
+                supply: balance::create_supply<VBI_TOKEN>(VBI_TOKEN {}),
+                monsters_created: 0,
+                token_supply_max: 1000000,
+                monster_max: 10,
+            },
+            tx_context::sender(ctx)
+        );
+    }
+
     fun init(ctx: &mut TxContext) {
         // create a game token with the name is VBI_TOKEN
         transfer::transfer(

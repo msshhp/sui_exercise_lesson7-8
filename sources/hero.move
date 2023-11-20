@@ -66,7 +66,7 @@ module game_hero::hero {
         game_id: ID,
     }
 
-    fun create(ctx: &mut TxContext){
+    public fun create(ctx: &mut TxContext){
         let sender = tx_context::sender(ctx);
         let id = object::new(ctx);
         let game_id = object::uid_to_inner(&id);
