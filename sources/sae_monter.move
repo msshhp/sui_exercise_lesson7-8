@@ -6,7 +6,7 @@ module game_hero::sea_hero {
     use sui::transfer;
     use sui::tx_context::{Self, TxContext};
 
-    struct SeaHeroAdmin {
+    struct SeaHeroAdmin has key {
         id: UID,
         supply: Supply<VBI_TOKEN>,
         monsters_created: u64,
@@ -27,14 +27,37 @@ module game_hero::sea_hero {
 
     fun init(ctx: &mut TxContext) {
         // create a game token with the name is VBI_TOKEN
+        transfer::transfer(
+            SeaHeroAdmin {
+                id: object::new(ctx),
+                supply: balance::create_supply<VBI_TOKEN>(VBI_TOKEN {}),
+                monsters_created: 0,
+                token_supply_max: 1000000,
+                monster_max: 10,
+            },
+            tx_context::sender(ctx)
+        );
     }
 
     // --- Gameplay ---
     public fun slay(hero: &Hero, monster: SeaMonster): Balance<VBI_TOKEN> {
         // after attack succeeds, hero will have a reward with VBI_TOKEn
+        let SeaMonster {id, reward} = monster;
+        object::delete(id);
+        assert!(hero::hero_strength(hero) >= balance::value(&reward), EHERO_NOT_STRONG_ENOUGH);
+        reward
     }
 
     // --- Object and coin creation ---
     public entry fun create_sea_monster(admin: &mut SeaHeroAdmin, reward_amount: u64, recipient: address, ctx: &mut TxContext) {
+        assert!(reward_amount < admin.token_supply_max, EINVALID_TOKEN_SUPPLY);
+        assert!(admin.monsters_created + 1 < admin.monster_max, EINVALID_MONSTER_SUPPLY);
+
+        let monster = SeaMonster {
+            id: object::new(ctx),
+            reward: balance::increase_supply(&mut admin.supply, reward_amount),
+        };
+        admin.monsters_created + 1;
+        transfer::public_transfer(monster, recipient);
     }
 }
