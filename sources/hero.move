@@ -229,14 +229,14 @@ module game_hero::hero {
     }
 
     public entry fun acquire_hero(
-        game: &GameInfo, payment: Coin<SUI>, ctx: &mut TxContext
+        game: &GameInfo, payment_sword: Coin<SUI>, payment_armor: Coin<SUI>, ctx: &mut TxContext
     ) {
         // call function create_armor
         // call function create_sword
         // call function create_hero
         let sender = tx_context::sender(ctx);
-        let new_sword = create_sword(game, payment, ctx);
-        let new_armor = create_armor(game, payment, ctx);
+        let new_sword = create_sword(game, payment_sword, ctx);
+        let new_armor = create_armor(game, payment_armor, ctx);
         let new_hero = create_hero(game, new_sword, new_armor, ctx);
 
         transfer::public_transfer(new_hero, sender);
