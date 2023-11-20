@@ -60,4 +60,8 @@ module game_hero::sea_hero {
         admin.monsters_created + 1;
         transfer::public_transfer(monster, recipient);
     }
+
+    public fun monster_reward(monster: &SeaMonster): u64 {
+        balance::value(&monster.reward)
+    }
 }
